@@ -9,7 +9,7 @@ export default class MyPokemon extends Component {
             <h2>My Pokemon</h2> 
             <div className="container">
             {this.props.pokemon.map(pokemon =>
-                <PokemonBar editPokemon={this.props.editPokemon} />
+                <PokemonBar editPokemon={this.props.editPokemon} pokemon={pokemon} />
                 )}
              </div>
             </>
