@@ -32,6 +32,8 @@ export default class EditPokemon extends Component {
             weaknesses: [],
             immunities: [],
 
+
+            name: "",
             HP: "",
             attack: "",
             special_attack: "",
@@ -100,7 +102,7 @@ export default class EditPokemon extends Component {
         poke = this.props.pokemon
 
         this.props.allNatures.forEach(nature => {
-            natureOptions.push({ key: nature.id, text: nature.name, value: nature })
+            natureOptions.push({ key: nature.id, text: `${nature.name} (+ ${nature.stat_raised}, - ${nature.stat_lowered})`, value: nature })
         })
 
         fetch(`http://localhost:3000/species/${poke.species_id}`)
@@ -118,6 +120,7 @@ export default class EditPokemon extends Component {
             resistances: this.calculateResistances(),
             weaknesses: this.calculateWeaknesses(),
             immunities: this.calculateImmunities(),
+            name: poke.name,
             HP: poke.species.HP,
             attack: poke.species.attack,
             special_attack: poke.species.special_attack,
@@ -132,6 +135,9 @@ export default class EditPokemon extends Component {
 
     changeName = (e, data) => {
         poke.name = data.value
+        this.setState({
+            name: data.value
+        })
     }
 
     changeNature = (e, data) => {
@@ -148,12 +154,17 @@ export default class EditPokemon extends Component {
         Object.keys(this.state).forEach(stat => {
             if (poke.nature.stat_raised === stat) {
                 this.setState({
-                    stat: poke.species.stat * 1.1
+                    [stat]: Math.floor(poke.species[stat] * 1.1)
                 })
             }
             else if (poke.nature.stat_lowered === stat) {
                 this.setState({
-                    stat: poke.species.stat * 0.9
+                    [stat]: Math.floor(poke.species[stat] * 0.9)
+                })
+            }
+            else if (stat === "HP" || stat === "attack" || stat === "special_attack" || stat === "defense" || stat === "special_defense" || stat === "speed") {
+                this.setState({
+                    [stat]: Math.floor(poke.species[stat])
                 })
             }
         })
@@ -246,8 +257,9 @@ export default class EditPokemon extends Component {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                name: poke.name,
-                ability_id: poke.ability.id
+                name: e.target.name.value,
+                ability_id: poke.ability.id,
+                nature_id: poke.nature.id
             }),
         })
         this.state.changedMoves.forEach(move => {
@@ -295,7 +307,7 @@ export default class EditPokemon extends Component {
                 <h2>Edit Pokemon</h2>
                 <Form onSubmit={(e) => this.savePokemon(e)}>
                     <Form.Group widths="equal">
-                        <Form.Input name="name" defaultValue={poke.name} size="big" onChange={this.changeName} />
+                        <Form.Input name="name" defaultValue={this.state.name} size="big" onChange={this.changeName} />
                         <i>({poke.species.name})</i>
                     </Form.Group>
                     <Image src={poke.species.sprite_url} size="medium" floated="left" />
@@ -340,7 +352,7 @@ export default class EditPokemon extends Component {
                         </Grid.Row>
                     </Grid>
 
-                    {/* <Grid columns='2' divided>
+                    <Grid columns='2' divided>
                         <Grid.Column>
                             <List>
                                 <List.Item><b>HP:</b> {this.state.HP}</List.Item>
@@ -356,12 +368,12 @@ export default class EditPokemon extends Component {
                                 fluid
                                 label='Nature'
                                 options={natureOptions}
-                                placeholder={poke.nature.name}
+                                placeholder= {poke.nature.name}
                                 defaultValue={poke.nature}
                                 onChange={this.changeNature}
                             />
                         </Grid.Column>
-                    </Grid> */}
+                    </Grid>
 
                     <Grid columns='2'>
                         <Grid.Column>
