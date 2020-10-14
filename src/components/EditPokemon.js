@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Image, Form, List, Grid } from 'semantic-ui-react';
+import { Image, Form, List, Grid, Button } from 'semantic-ui-react';
 
 var natureOptions = []
 var abilityOptions = []
@@ -37,8 +37,11 @@ export default class EditPokemon extends Component {
             special_attack: "",
             defense: "",
             special_defense: "",
-            speed: ""
+            speed: "",
 
+            changedMoves: [],
+            removedMoves: [],
+            removedIds: []
         }
     }
 
@@ -120,8 +123,15 @@ export default class EditPokemon extends Component {
             special_attack: poke.species.special_attack,
             defense: poke.species.defense,
             special_defense: poke.species.special_defense,
-            speed: poke.species.speed
+            speed: poke.species.speed,
+            changedMoves: [],
+            removedMoves: [],
+            removedIds: []
         })
+    }
+
+    changeName = (e, data) => {
+        poke.name = data.value
     }
 
     changeNature = (e, data) => {
@@ -135,8 +145,6 @@ export default class EditPokemon extends Component {
     }
 
     calculateStats = () => {
-        console.log(poke.nature)
-
         Object.keys(this.state).forEach(stat => {
             if (poke.nature.stat_raised === stat) {
                 this.setState({
@@ -152,44 +160,151 @@ export default class EditPokemon extends Component {
     }
 
     changeMove1 = (e, data) => {
-        console.log(data.value)
-        poke.moves[0] = data.value
-        this.forceUpdate()
+        if (poke.moves[0]) {
+            this.setState({
+                removedMoves: [...this.state.removedMoves, poke.moves[0]],
+                changedMoves: [...this.state.changedMoves, data.value]
+            }, () => {
+                poke.moves[0] = data.value
+                this.forceUpdate()
+            })
+        }
+        else {
+            this.setState({
+                changedMoves: [...this.state.changedMoves, data.value]
+            }, () => {
+                poke.moves[0] = data.value
+                this.forceUpdate()
+            })
+        }
     }
 
     changeMove2 = (e, data) => {
-        console.log(data.value)
-        poke.moves[1] = data.value
-        this.forceUpdate()
+        if (poke.moves[1]) {
+            this.setState({
+                removedMoves: [...this.state.removedMoves, poke.moves[1]],
+                changedMoves: [...this.state.changedMoves, data.value]
+            }, () => {
+                poke.moves[1] = data.value
+                this.forceUpdate()
+            })
+        }
+        else {
+            this.setState({
+                changedMoves: [...this.state.changedMoves, data.value]
+            }, () => {
+                poke.moves[1] = data.value
+                this.forceUpdate()
+            })
+        }
     }
 
     changeMove3 = (e, data) => {
-        console.log(data.value)
-        poke.moves[2] = data.value
-        this.forceUpdate()
+        if (poke.moves[2]) {
+            this.setState({
+                removedMoves: [...this.state.removedMoves, poke.moves[2]],
+                changedMoves: [...this.state.changedMoves, data.value]
+            }, () => {
+                poke.moves[2] = data.value
+                this.forceUpdate()
+            })
+        }
+        else {
+            this.setState({
+                changedMoves: [...this.state.changedMoves, data.value]
+            }, () => {
+                poke.moves[2] = data.value
+                this.forceUpdate()
+            })
+        }
     }
 
     changeMove4 = (e, data) => {
-        console.log(data.value)
-        poke.moves[3] = data.value
-        this.forceUpdate()
+        if (poke.moves[3]) {
+            this.setState({
+                removedMoves: [...this.state.removedMoves, poke.moves[3]],
+                changedMoves: [...this.state.changedMoves, data.value]
+            }, () => {
+                poke.moves[3] = data.value
+                this.forceUpdate()
+            })
+        }
+        else {
+            this.setState({
+                changedMoves: [...this.state.changedMoves, data.value]
+            }, () => {
+                poke.moves[3] = data.value
+                this.forceUpdate()
+            })
+        }
+    }
+
+    savePokemon = (e) => {
+        fetch(`http://localhost:3000/pokemons/${poke.id}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: poke.name,
+                ability_id: poke.ability.id
+            }),
+        })
+        this.state.changedMoves.forEach(move => {
+            fetch(`http://localhost:3000/pokemon_moves`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    pokemon_id: poke.id,
+                    move_id: move.id
+                }),
+            })
+        })
+        if (this.state.removedMoves !== []) {
+            this.state.removedMoves.forEach(move => {
+                fetch(`http://localhost:3000/pokemon_moves`)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.forEach(pokemonMove => {
+                            if (pokemonMove.pokemon_id === poke.id && pokemonMove.move_id === move.id) {
+                                this.setState({
+                                    removedIds: [...this.state.removedIds, pokemonMove.id]
+                                }, () => {
+                                    this.state.removedIds.forEach(id => {
+                                        fetch(`http://localhost:3000/pokemon_moves/${id}`, {
+                                            method: 'DELETE',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                            }
+                                        })
+                                    })
+                                })
+                            }
+                        })
+                    })
+            })
+        }
     }
 
 
     render() {
-        console.log(poke.moves[0])
         return (
             <>
                 <h2>Edit Pokemon</h2>
-                <Form>
+                <Form onSubmit={(e) => this.savePokemon(e)}>
                     <Form.Group widths="equal">
-                        <Form.Input name="name" value={poke.name} size="big" />
+                        <Form.Input name="name" defaultValue={poke.name} size="big" onChange={this.changeName} />
                         <i>({poke.species.name})</i>
                     </Form.Group>
                     <Image src={poke.species.sprite_url} size="medium" floated="left" />
                     <List bulleted horizontal>
                         <List.Item>{poke.types[0].name}</List.Item>
-                        <List.Item>{poke.types[1].name}</List.Item>
+                        {poke.types.length === 2 ?
+                            <List.Item>{poke.types[1].name}</List.Item> :
+                            <></>
+                        }
                     </List>
                     <Grid columns='three' divided>
                         <Grid.Row>
@@ -253,6 +368,7 @@ export default class EditPokemon extends Component {
                             <Form.Select
                                 fluid
                                 label='Ability'
+                                name="ability"
                                 options={abilityOptions}
                                 placeholder={poke.ability.name}
                                 defaultValue={poke.ability}
@@ -273,6 +389,7 @@ export default class EditPokemon extends Component {
                                     <Form.Select
                                         fluid
                                         label='Move 1'
+                                        name="move1"
                                         options={moveOptions}
                                         placeholder={poke.moves[0].name}
                                         value={poke.moves[0]}
@@ -281,6 +398,7 @@ export default class EditPokemon extends Component {
                                     <Form.Select
                                         fluid
                                         label='Move 1'
+                                        name="move1"
                                         options={moveOptions}
                                         placeholder="Pick a move"
                                         onChange={this.changeMove1}
@@ -363,6 +481,7 @@ export default class EditPokemon extends Component {
                                     <Form.Select
                                         fluid
                                         label='Move 2'
+                                        name='move2'
                                         options={moveOptions}
                                         placeholder={poke.moves[1].name}
                                         value={poke.moves[1]}
@@ -371,6 +490,7 @@ export default class EditPokemon extends Component {
                                     <Form.Select
                                         fluid
                                         label='Move 2'
+                                        name='move2'
                                         options={moveOptions}
                                         placeholder="Pick a move"
                                         onChange={this.changeMove2}
@@ -453,6 +573,7 @@ export default class EditPokemon extends Component {
                                     <Form.Select
                                         fluid
                                         label='Move 3'
+                                        name='move3'
                                         options={moveOptions}
                                         placeholder={poke.moves[2].name}
                                         value={poke.moves[2]}
@@ -461,6 +582,7 @@ export default class EditPokemon extends Component {
                                     <Form.Select
                                         fluid
                                         label='Move 3'
+                                        name='move3'
                                         options={moveOptions}
                                         placeholder="Pick a move"
                                         onChange={this.changeMove3}
@@ -543,6 +665,7 @@ export default class EditPokemon extends Component {
                                     <Form.Select
                                         fluid
                                         label='Move 4'
+                                        name='move4'
                                         options={moveOptions}
                                         placeholder={poke.moves[3].name}
                                         value={poke.moves[3]}
@@ -551,6 +674,7 @@ export default class EditPokemon extends Component {
                                     <Form.Select
                                         fluid
                                         label='Move 4'
+                                        name='move4'
                                         options={moveOptions}
                                         placeholder="Pick a move"
                                         onChange={this.changeMove4}
@@ -624,6 +748,8 @@ export default class EditPokemon extends Component {
                             </Grid.Column>
                         </Grid.Row>
                     </Grid>
+
+                    <Button type='submit' floated='right'>Save</Button>
                 </Form>
             </>
         )

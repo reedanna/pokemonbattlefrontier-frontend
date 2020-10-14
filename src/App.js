@@ -115,7 +115,7 @@ export default class App extends Component {
 
           <Container>
             {this.state.editingPokemon ?
-              <EditPokemon pokemon={this.state.activePokemon} allNatures={this.state.allNatures} />
+              <EditPokemon pokemon={this.state.activePokemon} allNatures={this.state.allNatures} savePokemon={this.savePokemon} />
               :
               <>
                 <Route exact path="/mypokemon" render={() => (
