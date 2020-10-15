@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PokeStats from './PokeStats.js'
 import { Image, Form, List, Grid, Button } from 'semantic-ui-react';
 
 var natureOptions = []
@@ -45,6 +46,37 @@ export default class EditPokemon extends Component {
             removedMoves: [],
             removedIds: []
         }
+    }
+
+    componentDidMount() {
+        poke = this.props.pokemon
+
+        this.props.allNatures.forEach(nature => {
+            natureOptions.push({ key: nature.id, text: `${nature.name} (+ ${nature.stat_raised.split('_').join(' ')}, - ${nature.stat_lowered.split('_').join(' ')})`, value: nature })
+        })
+
+        fetch(`http://localhost:3000/species/${poke.species_id}`)
+            .then(response => response.json())
+            .then(data => {
+                data.moves.forEach(move => {
+                    moveOptions.push({ key: "m" + move.id, text: move.name, value: move })
+                })
+                data.abilities.forEach(ability => {
+                    abilityOptions.push({ key: "a" + ability.id, text: ability.name, value: ability })
+                })
+            });
+
+        this.setState({
+            resistances: this.calculateResistances(),
+            weaknesses: this.calculateWeaknesses(),
+            immunities: this.calculateImmunities(),
+            name: poke.name,
+            changedMoves: [],
+            removedMoves: [],
+            removedIds: []
+        })
+
+        this.calculateStats()
     }
 
     // calculates which types a Pokemon resists
@@ -96,41 +128,6 @@ export default class EditPokemon extends Component {
             immunities = immunities.concat(poke.types[1].immune_to)
             return [...new Set(immunities)]
         }
-    }
-
-    componentDidMount() {
-        poke = this.props.pokemon
-
-        this.props.allNatures.forEach(nature => {
-            natureOptions.push({ key: nature.id, text: `${nature.name} (+ ${nature.stat_raised}, - ${nature.stat_lowered})`, value: nature })
-        })
-
-        fetch(`http://localhost:3000/species/${poke.species_id}`)
-            .then(response => response.json())
-            .then(data => {
-                data.moves.forEach(move => {
-                    moveOptions.push({ key: move.id, text: move.name, value: move })
-                })
-                data.abilities.forEach(ability => {
-                    abilityOptions.push({ key: ability.id, text: ability.name, value: ability })
-                })
-            });
-
-        this.setState({
-            resistances: this.calculateResistances(),
-            weaknesses: this.calculateWeaknesses(),
-            immunities: this.calculateImmunities(),
-            name: poke.name,
-            HP: poke.species.HP,
-            attack: poke.species.attack,
-            special_attack: poke.species.special_attack,
-            defense: poke.species.defense,
-            special_defense: poke.species.special_defense,
-            speed: poke.species.speed,
-            changedMoves: [],
-            removedMoves: [],
-            removedIds: []
-        })
     }
 
     changeName = (e, data) => {
@@ -311,23 +308,26 @@ export default class EditPokemon extends Component {
                         <i>({poke.species.name})</i>
                     </Form.Group>
                     <Image src={poke.species.sprite_url} size="medium" floated="left" />
-                    <List bulleted horizontal>
-                        <List.Item>{poke.types[0].name}</List.Item>
+                    <List horizontal>
+                        <List.Item><h2>{poke.types[0].name}</h2></List.Item>
                         {poke.types.length === 2 ?
-                            <List.Item>{poke.types[1].name}</List.Item> :
+                            <>
+                                <List.Item><h2>/</h2></List.Item>
+                                <List.Item><h2>{poke.types[1].name}</h2></List.Item>
+                            </> :
                             <></>
                         }
                     </List>
                     <Grid columns='three' divided>
                         <Grid.Row>
                             <Grid.Column>
-                                <b>Weak To:</b>
+                                <h3>Weak To:</h3>
                             </Grid.Column>
                             <Grid.Column>
-                                <b>Resists:</b>
+                                <h3>Resists:</h3>
                             </Grid.Column>
                             <Grid.Column>
-                                <b>Immune To:</b>
+                                <h3>Immune To:</h3>
                             </Grid.Column>
                         </Grid.Row>
                         <Grid.Row>
@@ -352,28 +352,17 @@ export default class EditPokemon extends Component {
                         </Grid.Row>
                     </Grid>
 
-                    <Grid columns='2' divided>
-                        <Grid.Column>
-                            <List>
-                                <List.Item><b>HP:</b> {this.state.HP}</List.Item>
-                                <List.Item><b>Attack:</b> {this.state.attack}</List.Item>
-                                <List.Item><b>Special Attack:</b> {this.state.special_attack}</List.Item>
-                                <List.Item><b>Defense:</b> {this.state.defense}</List.Item>
-                                <List.Item><b>Special Defense:</b> {this.state.special_defense}</List.Item>
-                                <List.Item><b>Speed:</b> {this.state.speed}</List.Item>
-                            </List>
-                        </Grid.Column>
-                        <Grid.Column>
-                            <Form.Select
-                                fluid
-                                label='Nature'
-                                options={natureOptions}
-                                placeholder= {poke.nature.name}
-                                defaultValue={poke.nature}
-                                onChange={this.changeNature}
-                            />
-                        </Grid.Column>
-                    </Grid>
+                    <PokeStats
+                        pokemon={poke} 
+                        natureOptions={natureOptions} 
+                        changeNature={this.changeNature}
+                        HP={this.state.HP}
+                        attack={this.state.attack}
+                        special_attack={this.state.special_attack}
+                        defense={this.state.defense}
+                        special_defense={this.state.special_defense}
+                        speed={this.state.speed} />
+                
 
                     <Grid columns='2'>
                         <Grid.Column>
