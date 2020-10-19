@@ -3,18 +3,19 @@ import './App.css';
 import Header from './components/Header.js'
 import MyPokemon from './components/MyPokemon.js'
 import NewPokemon from './components/NewPokemon.js'
-import LoggedOut from './components/LoggedOut.js'
 import EditPokemon from './components/EditPokemon.js'
-import { BrowserRouter as Router, Route, NavLink } from 'react-router-dom';
-import { Menu, Container } from 'semantic-ui-react'
+import LoggedOut from './components/LoggedOut.js'
+import { BrowserRouter as Router, Route, NavLink, Redirect } from 'react-router-dom';
+import { Menu, Segment } from 'semantic-ui-react'
+import { withCookies } from 'react-cookie';
 
-export default class App extends Component {
+class App extends Component {
 
   constructor() {
     super();
     this.state = {
       allPokemon: [],
-      activeUser: "",
+      activeUser: undefined,
       myPokemon: [],
       editingPokemon: false,
       activePokemon: "",
@@ -31,20 +32,28 @@ export default class App extends Component {
         })
       });
 
-    fetch('http://localhost:3000/users')
-      .then(response => response.json())
-      .then(data => {
-        this.setState({
-          activeUser: data[0],
-          myPokemon: data[0].pokemons
-        })
-      });
-
-      fetch('http://localhost:3000/natures')
+    fetch('http://localhost:3000/natures')
       .then(response => response.json())
       .then(data => {
         this.setState({
           allNatures: data
+        })
+      });
+
+    if (this.props.cookies.get('user')) {
+      this.setState({
+        activeUser: this.props.cookies.get('user')
+      })
+      this.getMyPokemon(this.props.cookies.get('user'))
+    }
+  }
+
+  getMyPokemon = (user) => {
+    fetch(`http://localhost:3000/users/${user.id}`)
+      .then(response => response.json())
+      .then(data => {
+        this.setState({
+          myPokemon: data.pokemons
         })
       });
   }
@@ -79,62 +88,167 @@ export default class App extends Component {
       .then(response => response.json())
       .then(data => {
         this.setState({
-          myPokemon: [...this.state.myPokemon, data],
           editingPokemon: true,
           activePokemon: data
         })
+        this.getMyPokemon(this.state.activeUser)
       })
   }
 
+  deletePokemon = (pokemon) => {
+    fetch(`http://localhost:3000/pokemons/${pokemon.id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+      .then(this.getMyPokemon(this.state.activeUser))
+
+    fetch('http://localhost:3000/pokemon_moves')
+      .then(response => response.json())
+      .then(data => {
+        data.forEach(pokemonMove => {
+          if (pokemonMove.pokemon_id === pokemon.id) {
+            fetch(`http://localhost:3000/pokemon_moves/${pokemonMove.id}`, {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+              }
+            })
+          }
+        })
+      });
+
+    window.location.href = "/mypokemon";
+  }
+
+  login = (e) => {
+    e.preventDefault()
+
+    fetch("http://localhost:3000/login", {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ username: e.target.username.value, password: e.target.password.value })
+    })
+      .then(r => r.json())
+      .then(response => {
+        if (response.user) {
+          localStorage.setItem("token", response.jwt)
+          this.props.cookies.set('user', response.user)
+          this.setState({ activeUser: response.user })
+          this.getMyPokemon(response.user)
+          window.location.href = "/mypokemon";
+        }
+        else {
+          alert(response.message)
+        }
+      })
+
+    e.target.reset()
+  }
+
+  signup = (e) => {
+    e.preventDefault()
+
+
+    if (e.target.password.value === e.target.passwordConfirm.value) {
+      fetch("http://localhost:3000/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({ name: e.target.username.value, password: e.target.password.value })
+      })
+        .then(r => r.json())
+        .then(response => {
+          if (response.status === "created") {
+            this.setState({ activeUser: response.user })
+            localStorage.setItem("token", response.jwt)
+            this.props.cookies.set('user', response.user)
+            window.location.href = "/mypokemon";
+          }
+          else {
+            alert(response.error)
+          }
+        })
+    }
+    else {
+      alert("Passwords do not match.")
+    }
+
+    e.target.reset()
+  }
+
+  logout = () => {
+    this.stopEditingPokemon()
+    this.props.cookies.remove('user')
+    this.setState({
+      activeUser: undefined,
+      myPokemon: []
+    })
+  }
+
   render() {
+    console.log(this.state.allPokemon)
     return (
       <>
-        <Header />
+        <Header activeUser={this.state.activeUser} />
         <Router>
-          <Menu>
-            <NavLink to="/mypokemon">
-              <Menu.Item onClick={this.stopEditingPokemon} link>
-                My Pokemon
+          {this.state.activeUser !== undefined ?
+            <Menu>
+              <NavLink to="/mypokemon">
+                <Menu.Item onClick={this.stopEditingPokemon} link>
+                  My Pokemon
              </Menu.Item>
-            </NavLink>
+              </NavLink>
 
 
-            <NavLink to="/newpokemon">
-              <Menu.Item onClick={this.stopEditingPokemon} link >
-                New Pokemon
+              <NavLink to="/newpokemon">
+                <Menu.Item onClick={this.stopEditingPokemon} link >
+                  New Pokemon
               </Menu.Item>
-            </NavLink>
+              </NavLink>
 
 
-            <NavLink to="/login">
-              <Menu.Item onClick={this.stopEditingPokemon} link >
-                Logout
+              <NavLink to="/login">
+                <Menu.Item onClick={this.logout} link >
+                  Logout
               </Menu.Item>
-            </NavLink>
-          </Menu>
+              </NavLink>
+            </Menu>
+            : <> </>}
 
-          <Container>
+          <Segment padded>
             {this.state.editingPokemon ?
-              <EditPokemon pokemon={this.state.activePokemon} allNatures={this.state.allNatures} savePokemon={this.savePokemon} />
+              <EditPokemon pokemon={this.state.activePokemon} allNatures={this.state.allNatures} savePokemon={this.savePokemon} deletePokemon={this.deletePokemon} cookies={this.props.cookies} />
               :
               <>
+
+                <Route exact path="/">
+                  {this.props.cookies.get('user') ? <Redirect to="/mypokemon" /> : <Redirect to="/login" />}
+                </Route>
+
                 <Route exact path="/mypokemon" render={() => (
-                  <MyPokemon pokemon={this.state.myPokemon} editPokemon={this.editPokemon} />
+                  <MyPokemon pokemon={this.state.myPokemon} editPokemon={this.editPokemon} activeUser={this.state.activeUser} cookies={this.props.cookies} />
                 )} />
                 <Route exact path="/newpokemon" render={() => (
-                  <NewPokemon species={this.state.allPokemon} addPokemon={this.addPokemon} />
+                  <NewPokemon species={this.state.allPokemon} addPokemon={this.addPokemon} cookies={this.props.cookies} />
                 )} />
                 <Route exact path="/login" render={() => (
-                  <LoggedOut />
+                  <LoggedOut login={this.login} signup={this.signup} cookies={this.props.cookies} />
                 )} />
               </>
             }
-          </Container>
-
-
+          </Segment>
         </Router>
       </>
     )
   }
 }
+
+export default withCookies(App);
 

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PokeStats from './PokeStats.js'
-import { Image, Form, List, Grid, Button } from 'semantic-ui-react';
+import { Image, Form, List, Grid, Button, Icon } from 'semantic-ui-react';
 
 var natureOptions = []
 var abilityOptions = []
@@ -301,6 +301,10 @@ export default class EditPokemon extends Component {
     render() {
         return (
             <>
+                <Button icon labelPosition='right' floated='right' onClick={() => this.props.deletePokemon(poke)}>
+                    <Icon name='trash' />
+                         Delete
+                </Button>
                 <h2>Edit Pokemon</h2>
                 <Form onSubmit={(e) => this.savePokemon(e)}>
                     <Form.Group widths="equal">
@@ -353,8 +357,8 @@ export default class EditPokemon extends Component {
                     </Grid>
 
                     <PokeStats
-                        pokemon={poke} 
-                        natureOptions={natureOptions} 
+                        pokemon={poke}
+                        natureOptions={natureOptions}
                         changeNature={this.changeNature}
                         HP={this.state.HP}
                         attack={this.state.attack}
@@ -362,7 +366,7 @@ export default class EditPokemon extends Component {
                         defense={this.state.defense}
                         special_defense={this.state.special_defense}
                         speed={this.state.speed} />
-                
+
 
                     <Grid columns='2'>
                         <Grid.Column>

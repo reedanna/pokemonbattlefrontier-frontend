@@ -1,20 +1,61 @@
 import React, { Component } from 'react';
-import { Card } from 'semantic-ui-react';
+import { Card, Input, Dropdown, Segment } from 'semantic-ui-react';
 import PokemonCard from './PokemonCard.js'
 
 export default class NewPokemon extends Component {
 
+    constructor() {
+        super()
+        this.state = {
+            typeOptions: [],
+            allPokemon: [],
+            nameFilter: '',
+            typeFilter: ''
+        }
+    }
+
+    componentDidMount() {
+        if (this.state.typeOptions.length === 0) {
+            fetch('http://localhost:3000/types')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(type => {
+                        this.state.typeOptions.push({ key: "t" + type.id, text: type.name, value: type.name })
+                    })
+                });
+        }
+    }
+
+    filterPokemonByName = (e, data) => {
+        this.setState({ nameFilter: data.value })
+    }
+
+    filterPokemonByType = (e, data) => {
+        this.setState({ typeFilter: data.value })
+    }
+
     render() {
         return (
             <>
-            <h2>Choose New Pokemon</h2> 
-            <div className="container">
-                <Card.Group itemsPerRow='4'>
-            {this.props.species.map(pokemon =>
-                <PokemonCard addPokemon={this.props.addPokemon} species={pokemon} key={pokemon.id}/>
-                )}
-                </Card.Group>
-             </div>
+                <Segment compact floated='right'>
+                    <Input
+                        action={
+                            <Dropdown button basic floating options={this.state.typeOptions} placeholder='Type' onChange={this.filterPokemonByType} />
+                        }
+                        icon='search'
+                        iconPosition='left'
+                        placeholder='Search...'
+                        onChange={this.filterPokemonByName}
+                    />
+                </Segment>
+                <h2>Choose New Pokemon</h2>
+                <div className="container">
+                    <Card.Group itemsPerRow='4'>
+                        {this.props.species.filter(pokemon => pokemon.name.toLowerCase().includes(this.state.nameFilter) && pokemon.types.some(type => type.name.includes(this.state.typeFilter))).map(pokemon =>
+                            <PokemonCard addPokemon={this.props.addPokemon} species={pokemon} key={pokemon.id} />
+                        )}
+                    </Card.Group>
+                </div>
             </>
         )
     }
