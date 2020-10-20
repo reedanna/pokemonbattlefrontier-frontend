@@ -8,7 +8,6 @@ export default class NewPokemon extends Component {
         super()
         this.state = {
             typeOptions: [],
-            allPokemon: [],
             nameFilter: '',
             typeFilter: ''
         }
@@ -19,6 +18,7 @@ export default class NewPokemon extends Component {
             fetch('http://localhost:3000/types')
                 .then(response => response.json())
                 .then(data => {
+                    this.state.typeOptions.push({key: "t0", text: "All", value: ""})
                     data.forEach(type => {
                         this.state.typeOptions.push({ key: "t" + type.id, text: type.name, value: type.name })
                     })
@@ -37,7 +37,7 @@ export default class NewPokemon extends Component {
     render() {
         return (
             <>
-                <Segment compact floated='right'>
+                <Segment compact floated='right' secondary>
                     <Input
                         action={
                             <Dropdown button basic floating options={this.state.typeOptions} placeholder='Type' onChange={this.filterPokemonByType} />

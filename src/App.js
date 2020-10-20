@@ -96,30 +96,46 @@ class App extends Component {
   }
 
   deletePokemon = (pokemon) => {
-    fetch(`http://localhost:3000/pokemons/${pokemon.id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    })
-      .then(this.getMyPokemon(this.state.activeUser))
-
     fetch('http://localhost:3000/pokemon_moves')
       .then(response => response.json())
       .then(data => {
-        data.forEach(pokemonMove => {
-          if (pokemonMove.pokemon_id === pokemon.id) {
-            fetch(`http://localhost:3000/pokemon_moves/${pokemonMove.id}`, {
-              method: 'DELETE',
-              headers: {
-                'Content-Type': 'application/json',
-              }
+        if (data.length !== 0) {
+          data.forEach(pokemonMove => {
+            if (pokemonMove.pokemon_id === pokemon.id) {
+              fetch(`http://localhost:3000/pokemon_moves/${pokemonMove.id}`, {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json',
+                }
+              })
+                .then(data => {
+                  fetch(`http://localhost:3000/pokemons/${pokemon.id}`, {
+                    method: 'DELETE',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    }
+                  })
+                    .then(data => {
+                      this.getMyPokemon(this.state.activeUser)
+                      window.location.href = "/mypokemon";
+                    })
+                })
+            }
+          })
+        }
+        else {
+          fetch(`http://localhost:3000/pokemons/${pokemon.id}`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          })
+            .then(data => {
+              this.getMyPokemon(this.state.activeUser)
+              window.location.href = "/mypokemon";
             })
-          }
-        })
-      });
-
-    window.location.href = "/mypokemon";
+        }
+      })
   }
 
   login = (e) => {
@@ -193,7 +209,6 @@ class App extends Component {
   }
 
   render() {
-    console.log(this.state.allPokemon)
     return (
       <>
         <Header activeUser={this.state.activeUser} />
@@ -222,7 +237,7 @@ class App extends Component {
             </Menu>
             : <> </>}
 
-          <Segment padded>
+          <Segment clearing padded>
             {this.state.editingPokemon ?
               <EditPokemon pokemon={this.state.activePokemon} allNatures={this.state.allNatures} savePokemon={this.savePokemon} deletePokemon={this.deletePokemon} cookies={this.props.cookies} />
               :

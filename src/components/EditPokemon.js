@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PokeStats from './PokeStats.js'
-import { Image, Form, List, Grid, Button, Icon } from 'semantic-ui-react';
+import { Image, Form, List, Grid, Button, Icon, Popup, Segment } from 'semantic-ui-react';
 
 var natureOptions = []
 var abilityOptions = []
@@ -52,7 +52,7 @@ export default class EditPokemon extends Component {
         poke = this.props.pokemon
 
         this.props.allNatures.forEach(nature => {
-            natureOptions.push({ key: nature.id, text: `${nature.name} (+ ${nature.stat_raised.split('_').join(' ')}, - ${nature.stat_lowered.split('_').join(' ')})`, value: nature })
+            natureOptions.push({ key: "n" + nature.id, text: `${nature.name} (+ ${nature.stat_raised.split('_').join(' ')}, - ${nature.stat_lowered.split('_').join(' ')})`, value: nature })
         })
 
         fetch(`http://localhost:3000/species/${poke.species_id}`)
@@ -271,7 +271,7 @@ export default class EditPokemon extends Component {
                 }),
             })
         })
-        if (this.state.removedMoves !== []) {
+        if (this.state.removedMoves.length !== 0) {
             this.state.removedMoves.forEach(move => {
                 fetch(`http://localhost:3000/pokemon_moves`)
                     .then(response => response.json())
@@ -301,78 +301,81 @@ export default class EditPokemon extends Component {
     render() {
         return (
             <>
-                <Button icon labelPosition='right' floated='right' onClick={() => this.props.deletePokemon(poke)}>
+                <Button primary icon labelPosition='right' floated='right' onClick={() => this.props.deletePokemon(poke)}>
                     <Icon name='trash' />
                          Delete
                 </Button>
                 <h2>Edit Pokemon</h2>
                 <Form onSubmit={(e) => this.savePokemon(e)}>
-                    <Form.Group widths="equal">
-                        <Form.Input name="name" defaultValue={this.state.name} size="big" onChange={this.changeName} />
-                        <i>({poke.species.name})</i>
-                    </Form.Group>
-                    <Image src={poke.species.sprite_url} size="medium" floated="left" />
-                    <List horizontal>
-                        <List.Item><h2>{poke.types[0].name}</h2></List.Item>
-                        {poke.types.length === 2 ?
-                            <>
-                                <List.Item><h2>/</h2></List.Item>
-                                <List.Item><h2>{poke.types[1].name}</h2></List.Item>
-                            </> :
-                            <></>
-                        }
-                    </List>
-                    <Grid columns='three' divided>
-                        <Grid.Row>
-                            <Grid.Column>
-                                <h3>Weak To:</h3>
-                            </Grid.Column>
-                            <Grid.Column>
-                                <h3>Resists:</h3>
-                            </Grid.Column>
-                            <Grid.Column>
-                                <h3>Immune To:</h3>
-                            </Grid.Column>
-                        </Grid.Row>
-                        <Grid.Row>
-                            <Grid.Column>
-                                <List>
-                                    {this.state.weaknesses.map(type =>
-                                        <List.Item>{type}</List.Item>)}
-                                </List>
-                            </Grid.Column>
-                            <Grid.Column>
-                                <List>
-                                    {this.state.resistances.map(type =>
-                                        <List.Item>{type}</List.Item>)}
-                                </List>
-                            </Grid.Column>
-                            <Grid.Column>
-                                <List>
-                                    {this.state.immunities.map(type =>
-                                        <List.Item>{type}</List.Item>)}
-                                </List>
-                            </Grid.Column>
-                        </Grid.Row>
-                    </Grid>
+                    <Segment clearing>
+                        <Form.Group widths="equal">
+                            <Form.Input name="name" defaultValue={this.state.name} size="big" onChange={this.changeName} />
+                            <i>({poke.species.name})</i>
+                        </Form.Group>
+                        <Image src={poke.species.sprite_url} size="medium" floated="left" />
+                        <List horizontal>
+                            <List.Item><h2>{poke.types[0].name}</h2></List.Item>
+                            {poke.types.length === 2 ?
+                                <>
+                                    <List.Item><h2>/</h2></List.Item>
+                                    <List.Item><h2>{poke.types[1].name}</h2></List.Item>
+                                </> :
+                                <></>
+                            }
+                        </List>
+                        <Grid columns='three' divided>
+                            <Grid.Row>
+                                <Grid.Column>
+                                    <h3>Weak To:</h3>
+                                </Grid.Column>
+                                <Grid.Column>
+                                    <h3>Resists:</h3>
+                                </Grid.Column>
+                                <Grid.Column>
+                                    <h3>Immune To:</h3>
+                                </Grid.Column>
+                            </Grid.Row>
+                            <Grid.Row>
+                                <Grid.Column>
+                                    <List>
+                                        {this.state.weaknesses.map(type =>
+                                            <List.Item>{type}</List.Item>)}
+                                    </List>
+                                </Grid.Column>
+                                <Grid.Column>
+                                    <List>
+                                        {this.state.resistances.map(type =>
+                                            <List.Item>{type}</List.Item>)}
+                                    </List>
+                                </Grid.Column>
+                                <Grid.Column>
+                                    <List>
+                                        {this.state.immunities.map(type =>
+                                            <List.Item>{type}</List.Item>)}
+                                    </List>
+                                </Grid.Column>
+                            </Grid.Row>
+                        </Grid>
 
-                    <PokeStats
-                        pokemon={poke}
-                        natureOptions={natureOptions}
-                        changeNature={this.changeNature}
-                        HP={this.state.HP}
-                        attack={this.state.attack}
-                        special_attack={this.state.special_attack}
-                        defense={this.state.defense}
-                        special_defense={this.state.special_defense}
-                        speed={this.state.speed} />
+                        <PokeStats
+                            pokemon={poke}
+                            natureOptions={natureOptions}
+                            changeNature={this.changeNature}
+                            HP={this.state.HP}
+                            attack={this.state.attack}
+                            special_attack={this.state.special_attack}
+                            defense={this.state.defense}
+                            special_defense={this.state.special_defense}
+                            speed={this.state.speed} />
 
+                    </Segment>
 
+                    <Segment>
                     <Grid columns='2'>
                         <Grid.Column>
+                            <h3>Ability:</h3>
                             <Form.Select
                                 fluid
-                                label='Ability'
                                 name="ability"
                                 options={abilityOptions}
                                 placeholder={poke.ability.name}
@@ -384,378 +387,411 @@ export default class EditPokemon extends Component {
                             <p>{poke.ability.effect}</p>
                         </Grid.Column>
                     </Grid>
+                    </Segment>
 
 
-                    {/* move 1 */}
-                    <Grid celled columns='equal'>
-                        <Grid.Row>
-                            <Grid.Column>
-                                {poke.moves[0] ?
+                {/* move 1 */}
+                <Segment>
+                <Grid celled='internally' columns='equal'>
+                    <Grid.Row>
+                        <Grid.Column>
+                            {poke.moves[0] ?
+                                <>
+                                    <h3>Move 1:</h3>
                                     <Form.Select
                                         fluid
-                                        label='Move 1'
                                         name="move1"
                                         options={moveOptions}
                                         placeholder={poke.moves[0].name}
                                         value={poke.moves[0]}
                                         onChange={this.changeMove1}
-                                    /> :
+                                    />
+                                </> :
+                                <>
+                                    <h3>Move 1:</h3>
                                     <Form.Select
                                         fluid
-                                        label='Move 1'
                                         name="move1"
                                         options={moveOptions}
                                         placeholder="Pick a move"
                                         onChange={this.changeMove1}
                                     />
-                                }
-                            </Grid.Column>
-                            <Grid.Column>
+                                </>
+                            }
+                        </Grid.Column>
+                        <Grid.Column>
+                            {poke.moves[0] ?
+                                <p>{poke.moves[0].other_effects}</p>
+                                :
+                                <p></p>}
+                        </Grid.Column>
+                    </Grid.Row>
+                    <Grid.Row>
+                        <Grid.Column>
+                            {poke.moves[0] ?
+                                <List>
+                                    <List.Item>{poke.moves[0].type.name}</List.Item>
+                                    <List.Item>{poke.moves[0].category}</List.Item>
+                                    {poke.moves[0].bp ?
+                                        <List.Item>{poke.moves[0].bp} BP</List.Item>
+                                        : <List.Item></List.Item>}
+                                </List>
+                                :
+                                <List>
+                                    <List.Item>Type</List.Item>
+                                    <List.Item>Category</List.Item>
+                                    <List.Item>BP</List.Item>
+                                </List>
+                            }
+                        </Grid.Column>
+                        <Grid.Column>
+                            <List>
+                                <List.Item><b>2x damage to:</b></List.Item>
                                 {poke.moves[0] ?
-                                    <p>{poke.moves[0].other_effects}</p>
+                                    <>
+                                        {poke.moves[0].type.strong_against.map(type =>
+                                            <List.Item>{type}</List.Item>)}
+                                    </>
                                     :
-                                    <p></p>}
-                            </Grid.Column>
-                        </Grid.Row>
-                        <Grid.Row>
-                            <Grid.Column>
-                                {poke.moves[0] ?
-                                    <List>
-                                        <List.Item>{poke.moves[0].type.name}</List.Item>
-                                        <List.Item>{poke.moves[0].category}</List.Item>
-                                        <List.Item>{poke.moves[0].bp}</List.Item>
-                                    </List>
-                                    :
-                                    <List>
-                                        <List.Item>Type</List.Item>
-                                        <List.Item>Category</List.Item>
-                                        <List.Item>BP</List.Item>
-                                    </List>
+                                    <>
+                                    </>
                                 }
-                            </Grid.Column>
-                            <Grid.Column>
-                                <List>
-                                    <List.Item><b>2x damage to:</b></List.Item>
-                                    {poke.moves[0] ?
-                                        <>
-                                            {poke.moves[0].type.strong_against.map(type =>
-                                                <List.Item>{type}</List.Item>)}
-                                        </>
-                                        :
-                                        <>
-                                        </>
-                                    }
-                                </List>
-                            </Grid.Column>
-                            <Grid.Column>
-                                <List>
-                                    <List.Item><b>0.5x damage to:</b></List.Item>
-                                    {poke.moves[0] ?
-                                        <>
-                                            {poke.moves[0].type.weak_against.map(type =>
-                                                <List.Item>{type}</List.Item>)}
-                                        </>
-                                        :
-                                        <>
-                                        </>
-                                    }
-                                </List>
-                            </Grid.Column>
-                            <Grid.Column>
-                                <List>
-                                    <List.Item><b>0x damage to:</b></List.Item>
-                                    {poke.moves[0] ?
-                                        <>
-                                            {poke.moves[0].type.no_effect_against.map(type =>
-                                                <List.Item>{type}</List.Item>)}
-                                        </>
-                                        :
-                                        <>
-                                        </>
-                                    }
-                                </List>
-                            </Grid.Column>
-                        </Grid.Row>
-                    </Grid>
+                            </List>
+                        </Grid.Column>
+                        <Grid.Column>
+                            <List>
+                                <List.Item><b>0.5x damage to:</b></List.Item>
+                                {poke.moves[0] ?
+                                    <>
+                                        {poke.moves[0].type.weak_against.map(type =>
+                                            <List.Item>{type}</List.Item>)}
+                                    </>
+                                    :
+                                    <>
+                                    </>
+                                }
+                            </List>
+                        </Grid.Column>
+                        <Grid.Column>
+                            <List>
+                                <List.Item><b>0x damage to:</b></List.Item>
+                                {poke.moves[0] ?
+                                    <>
+                                        {poke.moves[0].type.no_effect_against.map(type =>
+                                            <List.Item>{type}</List.Item>)}
+                                    </>
+                                    :
+                                    <>
+                                    </>
+                                }
+                            </List>
+                        </Grid.Column>
+                    </Grid.Row>
+                </Grid>
+                </Segment>
 
-                    {/* move 2 */}
-                    <Grid celled columns='equal'>
-                        <Grid.Row>
-                            <Grid.Column>
-                                {poke.moves[1] ?
+                {/* move 2 */}
+                <Segment>
+                <Grid celled='internally' columns='equal'>
+                    <Grid.Row>
+                        <Grid.Column>
+                            {poke.moves[1] ?
+                                <>
+                                    <h3>Move 2:</h3>
                                     <Form.Select
                                         fluid
-                                        label='Move 2'
                                         name='move2'
                                         options={moveOptions}
                                         placeholder={poke.moves[1].name}
                                         value={poke.moves[1]}
                                         onChange={this.changeMove2}
-                                    /> :
+                                    />
+                                </> :
+                                <>
+                                    <h3>Move 2:</h3>
                                     <Form.Select
                                         fluid
-                                        label='Move 2'
                                         name='move2'
                                         options={moveOptions}
                                         placeholder="Pick a move"
                                         onChange={this.changeMove2}
                                     />
-                                }
-                            </Grid.Column>
-                            <Grid.Column>
+                                </>
+                            }
+                        </Grid.Column>
+                        <Grid.Column>
+                            {poke.moves[1] ?
+                                <p>{poke.moves[1].other_effects}</p>
+                                :
+                                <p></p>}
+                        </Grid.Column>
+                    </Grid.Row>
+                    <Grid.Row>
+                        <Grid.Column>
+                            {poke.moves[1] ?
+                                <List>
+                                    <List.Item>{poke.moves[1].type.name}</List.Item>
+                                    <List.Item>{poke.moves[1].category}</List.Item>
+                                    {poke.moves[1].bp ?
+                                        <List.Item>{poke.moves[1].bp} BP</List.Item>
+                                        : <List.Item></List.Item>}
+                                </List>
+                                :
+                                <List>
+                                    <List.Item>Type</List.Item>
+                                    <List.Item>Category</List.Item>
+                                    <List.Item>BP</List.Item>
+                                </List>
+                            }
+                        </Grid.Column>
+                        <Grid.Column>
+                            <List>
+                                <List.Item><b>2x damage to:</b></List.Item>
                                 {poke.moves[1] ?
-                                    <p>{poke.moves[1].other_effects}</p>
+                                    <>
+                                        {poke.moves[1].type.strong_against.map(type =>
+                                            <List.Item>{type}</List.Item>)}
+                                    </>
                                     :
-                                    <p></p>}
-                            </Grid.Column>
-                        </Grid.Row>
-                        <Grid.Row>
-                            <Grid.Column>
-                                {poke.moves[1] ?
-                                    <List>
-                                        <List.Item>{poke.moves[1].type.name}</List.Item>
-                                        <List.Item>{poke.moves[1].category}</List.Item>
-                                        <List.Item>{poke.moves[1].bp}</List.Item>
-                                    </List>
-                                    :
-                                    <List>
-                                        <List.Item>Type</List.Item>
-                                        <List.Item>Category</List.Item>
-                                        <List.Item>BP</List.Item>
-                                    </List>
+                                    <>
+                                    </>
                                 }
-                            </Grid.Column>
-                            <Grid.Column>
-                                <List>
-                                    <List.Item><b>2x damage to:</b></List.Item>
-                                    {poke.moves[1] ?
-                                        <>
-                                            {poke.moves[1].type.strong_against.map(type =>
-                                                <List.Item>{type}</List.Item>)}
-                                        </>
-                                        :
-                                        <>
-                                        </>
-                                    }
-                                </List>
-                            </Grid.Column>
-                            <Grid.Column>
-                                <List>
-                                    <List.Item><b>0.5x damage to:</b></List.Item>
-                                    {poke.moves[1] ?
-                                        <>
-                                            {poke.moves[1].type.weak_against.map(type =>
-                                                <List.Item>{type}</List.Item>)}
-                                        </>
-                                        :
-                                        <>
-                                        </>
-                                    }
-                                </List>
-                            </Grid.Column>
-                            <Grid.Column>
-                                <List>
-                                    <List.Item><b>0x damage to:</b></List.Item>
-                                    {poke.moves[1] ?
-                                        <>
-                                            {poke.moves[1].type.no_effect_against.map(type =>
-                                                <List.Item>{type}</List.Item>)}
-                                        </>
-                                        :
-                                        <>
-                                        </>
-                                    }
-                                </List>
-                            </Grid.Column>
-                        </Grid.Row>
-                    </Grid>
+                            </List>
+                        </Grid.Column>
+                        <Grid.Column>
+                            <List>
+                                <List.Item><b>0.5x damage to:</b></List.Item>
+                                {poke.moves[1] ?
+                                    <>
+                                        {poke.moves[1].type.weak_against.map(type =>
+                                            <List.Item>{type}</List.Item>)}
+                                    </>
+                                    :
+                                    <>
+                                    </>
+                                }
+                            </List>
+                        </Grid.Column>
+                        <Grid.Column>
+                            <List>
+                                <List.Item><b>0x damage to:</b></List.Item>
+                                {poke.moves[1] ?
+                                    <>
+                                        {poke.moves[1].type.no_effect_against.map(type =>
+                                            <List.Item>{type}</List.Item>)}
+                                    </>
+                                    :
+                                    <>
+                                    </>
+                                }
+                            </List>
+                        </Grid.Column>
+                    </Grid.Row>
+                </Grid>
+                </Segment>
 
-                    {/* move 3 */}
-                    <Grid celled columns='equal'>
-                        <Grid.Row>
-                            <Grid.Column>
-                                {poke.moves[2] ?
+                {/* move 3 */}
+                <Segment>
+                <Grid celled='internally' columns='equal'>
+                    <Grid.Row>
+                        <Grid.Column>
+                            {poke.moves[2] ?
+                                <>
+                                    <h3>Move 3:</h3>
                                     <Form.Select
                                         fluid
-                                        label='Move 3'
                                         name='move3'
                                         options={moveOptions}
                                         placeholder={poke.moves[2].name}
                                         value={poke.moves[2]}
                                         onChange={this.changeMove3}
-                                    /> :
+                                    />
+                                </> :
+                                <>
+                                    <h3>Move 3:</h3>
                                     <Form.Select
                                         fluid
-                                        label='Move 3'
                                         name='move3'
                                         options={moveOptions}
                                         placeholder="Pick a move"
                                         onChange={this.changeMove3}
                                     />
-                                }
-                            </Grid.Column>
-                            <Grid.Column>
+                                </>
+                            }
+                        </Grid.Column>
+                        <Grid.Column>
+                            {poke.moves[2] ?
+                                <p>{poke.moves[2].other_effects}</p>
+                                :
+                                <p></p>}
+                        </Grid.Column>
+                    </Grid.Row>
+                    <Grid.Row>
+                        <Grid.Column>
+                            {poke.moves[2] ?
+                                <List>
+                                    <List.Item>{poke.moves[2].type.name}</List.Item>
+                                    <List.Item>{poke.moves[2].category}</List.Item>
+                                    {poke.moves[2].bp ?
+                                        <List.Item>{poke.moves[2].bp} BP</List.Item>
+                                        : <List.Item></List.Item>}
+                                </List>
+                                :
+                                <List>
+                                    <List.Item>Type</List.Item>
+                                    <List.Item>Category</List.Item>
+                                    <List.Item>BP</List.Item>
+                                </List>
+                            }
+                        </Grid.Column>
+                        <Grid.Column>
+                            <List>
+                                <List.Item><b>2x damage to:</b></List.Item>
                                 {poke.moves[2] ?
-                                    <p>{poke.moves[2].other_effects}</p>
+                                    <>
+                                        {poke.moves[2].type.strong_against.map(type =>
+                                            <List.Item>{type}</List.Item>)}
+                                    </>
                                     :
-                                    <p></p>}
-                            </Grid.Column>
-                        </Grid.Row>
-                        <Grid.Row>
-                            <Grid.Column>
-                                {poke.moves[2] ?
-                                    <List>
-                                        <List.Item>{poke.moves[2].type.name}</List.Item>
-                                        <List.Item>{poke.moves[2].category}</List.Item>
-                                        <List.Item>{poke.moves[2].bp}</List.Item>
-                                    </List>
-                                    :
-                                    <List>
-                                        <List.Item>Type</List.Item>
-                                        <List.Item>Category</List.Item>
-                                        <List.Item>BP</List.Item>
-                                    </List>
+                                    <>
+                                    </>
                                 }
-                            </Grid.Column>
-                            <Grid.Column>
-                                <List>
-                                    <List.Item><b>2x damage to:</b></List.Item>
-                                    {poke.moves[2] ?
-                                        <>
-                                            {poke.moves[2].type.strong_against.map(type =>
-                                                <List.Item>{type}</List.Item>)}
-                                        </>
-                                        :
-                                        <>
-                                        </>
-                                    }
-                                </List>
-                            </Grid.Column>
-                            <Grid.Column>
-                                <List>
-                                    <List.Item><b>0.5x damage to:</b></List.Item>
-                                    {poke.moves[2] ?
-                                        <>
-                                            {poke.moves[2].type.weak_against.map(type =>
-                                                <List.Item>{type}</List.Item>)}
-                                        </>
-                                        :
-                                        <>
-                                        </>
-                                    }
-                                </List>
-                            </Grid.Column>
-                            <Grid.Column>
-                                <List>
-                                    <List.Item><b>0x damage to:</b></List.Item>
-                                    {poke.moves[2] ?
-                                        <>
-                                            {poke.moves[2].type.no_effect_against.map(type =>
-                                                <List.Item>{type}</List.Item>)}
-                                        </>
-                                        :
-                                        <>
-                                        </>
-                                    }
-                                </List>
-                            </Grid.Column>
-                        </Grid.Row>
-                    </Grid>
+                            </List>
+                        </Grid.Column>
+                        <Grid.Column>
+                            <List>
+                                <List.Item><b>0.5x damage to:</b></List.Item>
+                                {poke.moves[2] ?
+                                    <>
+                                        {poke.moves[2].type.weak_against.map(type =>
+                                            <List.Item>{type}</List.Item>)}
+                                    </>
+                                    :
+                                    <>
+                                    </>
+                                }
+                            </List>
+                        </Grid.Column>
+                        <Grid.Column>
+                            <List>
+                                <List.Item><b>0x damage to:</b></List.Item>
+                                {poke.moves[2] ?
+                                    <>
+                                        {poke.moves[2].type.no_effect_against.map(type =>
+                                            <List.Item>{type}</List.Item>)}
+                                    </>
+                                    :
+                                    <>
+                                    </>
+                                }
+                            </List>
+                        </Grid.Column>
+                    </Grid.Row>
+                </Grid>
+                </Segment>
 
-                    {/* move 4 */}
-                    <Grid celled columns='equal'>
-                        <Grid.Row>
-                            <Grid.Column>
-                                {poke.moves[3] ?
+                {/* move 4 */}
+                <Segment>
+                <Grid celled='internally' columns='equal'>
+                    <Grid.Row>
+                        <Grid.Column>
+                            {poke.moves[3] ?
+                                <>
+                                    <h3>Move 4:</h3>
                                     <Form.Select
                                         fluid
-                                        label='Move 4'
                                         name='move4'
                                         options={moveOptions}
                                         placeholder={poke.moves[3].name}
                                         value={poke.moves[3]}
                                         onChange={this.changeMove4}
-                                    /> :
+                                    />
+                                </> :
+                                <>
+                                    <h3>Move 4:</h3>
                                     <Form.Select
                                         fluid
-                                        label='Move 4'
                                         name='move4'
                                         options={moveOptions}
                                         placeholder="Pick a move"
                                         onChange={this.changeMove4}
                                     />
-                                }
-                            </Grid.Column>
-                            <Grid.Column>
+                                </>
+                            }
+                        </Grid.Column>
+                        <Grid.Column>
+                            {poke.moves[3] ?
+                                <p>{poke.moves[3].other_effects}</p>
+                                :
+                                <p></p>}
+                        </Grid.Column>
+                    </Grid.Row>
+                    <Grid.Row>
+                        <Grid.Column>
+                            {poke.moves[3] ?
+                                <List>
+                                    <List.Item>{poke.moves[3].type.name}</List.Item>
+                                    <List.Item>{poke.moves[3].category}</List.Item>
+                                    {poke.moves[3].bp ?
+                                        <List.Item>{poke.moves[3].bp} BP</List.Item>
+                                        : <List.Item></List.Item>}
+                                </List>
+                                :
+                                <List>
+                                    <List.Item>Type</List.Item>
+                                    <List.Item>Category</List.Item>
+                                    <List.Item>BP</List.Item>
+                                </List>
+                            }
+                        </Grid.Column>
+                        <Grid.Column>
+                            <List>
+                                <List.Item><b>2x damage to:</b></List.Item>
                                 {poke.moves[3] ?
-                                    <p>{poke.moves[3].other_effects}</p>
+                                    <>
+                                        {poke.moves[3].type.strong_against.map(type =>
+                                            <List.Item>{type}</List.Item>)}
+                                    </>
                                     :
-                                    <p></p>}
-                            </Grid.Column>
-                        </Grid.Row>
-                        <Grid.Row>
-                            <Grid.Column>
-                                {poke.moves[3] ?
-                                    <List>
-                                        <List.Item>{poke.moves[3].type.name}</List.Item>
-                                        <List.Item>{poke.moves[3].category}</List.Item>
-                                        <List.Item>{poke.moves[3].bp}</List.Item>
-                                    </List>
-                                    :
-                                    <List>
-                                        <List.Item>Type</List.Item>
-                                        <List.Item>Category</List.Item>
-                                        <List.Item>BP</List.Item>
-                                    </List>
+                                    <>
+                                    </>
                                 }
-                            </Grid.Column>
-                            <Grid.Column>
-                                <List>
-                                    <List.Item><b>2x damage to:</b></List.Item>
-                                    {poke.moves[3] ?
-                                        <>
-                                            {poke.moves[3].type.strong_against.map(type =>
-                                                <List.Item>{type}</List.Item>)}
-                                        </>
-                                        :
-                                        <>
-                                        </>
-                                    }
-                                </List>
-                            </Grid.Column>
-                            <Grid.Column>
-                                <List>
-                                    <List.Item><b>0.5x damage to:</b></List.Item>
-                                    {poke.moves[3] ?
-                                        <>
-                                            {poke.moves[3].type.weak_against.map(type =>
-                                                <List.Item>{type}</List.Item>)}
-                                        </>
-                                        :
-                                        <>
-                                        </>
-                                    }
-                                </List>
-                            </Grid.Column>
-                            <Grid.Column>
-                                <List>
-                                    <List.Item><b>0x damage to:</b></List.Item>
-                                    {poke.moves[3] ?
-                                        <>
-                                            {poke.moves[3].type.no_effect_against.map(type =>
-                                                <List.Item>{type}</List.Item>)}
-                                        </>
-                                        :
-                                        <>
-                                        </>
-                                    }
-                                </List>
-                            </Grid.Column>
-                        </Grid.Row>
-                    </Grid>
+                            </List>
+                        </Grid.Column>
+                        <Grid.Column>
+                            <List>
+                                <List.Item><b>0.5x damage to:</b></List.Item>
+                                {poke.moves[3] ?
+                                    <>
+                                        {poke.moves[3].type.weak_against.map(type =>
+                                            <List.Item>{type}</List.Item>)}
+                                    </>
+                                    :
+                                    <>
+                                    </>
+                                }
+                            </List>
+                        </Grid.Column>
+                        <Grid.Column>
+                            <List>
+                                <List.Item><b>0x damage to:</b></List.Item>
+                                {poke.moves[3] ?
+                                    <>
+                                        {poke.moves[3].type.no_effect_against.map(type =>
+                                            <List.Item>{type}</List.Item>)}
+                                    </>
+                                    :
+                                    <>
+                                    </>
+                                }
+                            </List>
+                        </Grid.Column>
+                    </Grid.Row>
+                </Grid>
+                </Segment>
 
-                    <Button type='submit' floated='right'>Save</Button>
-                </Form>
+                <Popup hideOnScroll content='Changes Saved!' on='click' trigger={<Button primary type='submit' floated='right'>Save</Button>} />
+            </Form>
             </>
         )
     }

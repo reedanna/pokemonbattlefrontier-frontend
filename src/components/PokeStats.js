@@ -20,8 +20,8 @@ export default class PokeStats extends Component {
                     <Form.Select
                         fluid
                         options={this.props.natureOptions}
-                        // placeholder={this.props.pokemon.nature.name}
-                        defaultValue={this.props.pokemon.nature}
+                        placeholder={this.props.pokemon.nature.name}
+                        value={this.props.pokemon.nature}
                         onChange={this.props.changeNature}
                     />
                 </Grid.Column>

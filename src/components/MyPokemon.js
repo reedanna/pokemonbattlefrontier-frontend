@@ -17,7 +17,7 @@ export default class MyPokemon extends Component {
                         )}
                     </div>
                     : 
-                    <p>None yet</p>
+                    <p>None yet. Click "New Pokemon" to choose one!</p>
                 }
 
             </>
