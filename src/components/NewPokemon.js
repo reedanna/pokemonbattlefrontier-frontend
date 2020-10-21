@@ -51,7 +51,7 @@ export default class NewPokemon extends Component {
                 <h2>Choose New Pokemon</h2>
                 <div className="container">
                     <Card.Group itemsPerRow='4'>
-                        {this.props.species.filter(pokemon => pokemon.name.toLowerCase().includes(this.state.nameFilter) && pokemon.types.some(type => type.name.includes(this.state.typeFilter))).map(pokemon =>
+                        {this.props.species.filter(pokemon => pokemon.name.toLowerCase().includes(this.state.nameFilter.toLowerCase()) && pokemon.types.some(type => type.name.includes(this.state.typeFilter))).map(pokemon =>
                             <PokemonCard addPokemon={this.props.addPokemon} species={pokemon} key={pokemon.id} />
                         )}
                     </Card.Group>
