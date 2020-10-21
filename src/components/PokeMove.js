@@ -21,7 +21,7 @@ export default class PokeMove extends Component {
                                     />
                                 </> :
                                 <>
-                                    <h3>Move 1:</h3>
+                                    <h3>Move {this.props.num}:</h3>
                                     <Form.Select
                                         fluid
                                         name={`move${this.props.num}`}
