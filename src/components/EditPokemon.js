@@ -246,7 +246,9 @@ export default class EditPokemon extends Component {
                 <Popup
                     content={<><p>Are you sure?</p><Button primary onClick={() => this.props.deletePokemon(poke)}>Yes, delete {poke.name}</Button></>}
                     on='click'
-                    trigger={<Button primary icon labelPosition='right' floated='right'><Icon name='trash' />Delete</Button>} />
+                    trigger={<Button primary icon labelPosition='right' floated='right'><Icon name='trash' />Delete</Button>} 
+                    />
+    
                 <h2>Edit Pokemon</h2>
                 <Form onSubmit={(e) => this.savePokemon(e)}>
                     <Segment clearing>

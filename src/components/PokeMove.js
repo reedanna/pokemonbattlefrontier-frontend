@@ -10,7 +10,7 @@ export default class PokeMove extends Component {
                         <Grid.Column>
                             {this.props.pokemon.moves[this.props.num - 1] ?
                                 <>
-                                    <h3>Move 1:</h3>
+                                    <h3>Move {this.props.num}:</h3>
                                     <Form.Select
                                         fluid
                                         name={`move${this.props.num}`}
