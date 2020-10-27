@@ -24,7 +24,7 @@ class App extends Component {
   }
 
   componentDidMount() {
-    fetch('http://localhost:3000/species')
+    fetch('http://pbf-backend.herokuapp.com/species')
       .then(response => response.json())
       .then(data => {
         this.setState({
@@ -32,7 +32,7 @@ class App extends Component {
         })
       });
 
-    fetch('http://localhost:3000/natures')
+    fetch('http://pbf-backend.herokuapp.com/natures')
       .then(response => response.json())
       .then(data => {
         this.setState({
@@ -49,7 +49,7 @@ class App extends Component {
   }
 
   getMyPokemon = (user) => {
-    fetch(`http://localhost:3000/users/${user.id}`)
+    fetch(`http://pbf-backend.herokuapp.com/users/${user.id}`)
       .then(response => response.json())
       .then(data => {
         this.setState({
@@ -72,7 +72,7 @@ class App extends Component {
   }
 
   addPokemon = (species) => {
-    fetch('http://localhost:3000/pokemons', {
+    fetch('http://pbf-backend.herokuapp.com/pokemons', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -96,20 +96,20 @@ class App extends Component {
   }
 
   deletePokemon = (pokemon) => {
-    fetch('http://localhost:3000/pokemon_moves')
+    fetch('http://pbf-backend.herokuapp.com/pokemon_moves')
       .then(response => response.json())
       .then(data => {
         if (data.length !== 0) {
           data.forEach(pokemonMove => {
             if (pokemonMove.pokemon_id === pokemon.id) {
-              fetch(`http://localhost:3000/pokemon_moves/${pokemonMove.id}`, {
+              fetch(`http://pbf-backend.herokuapp.com/pokemon_moves/${pokemonMove.id}`, {
                 method: 'DELETE',
                 headers: {
                   'Content-Type': 'application/json',
                 }
               })
                 .then(data => {
-                  fetch(`http://localhost:3000/pokemons/${pokemon.id}`, {
+                  fetch(`http://pbf-backend.herokuapp.com/pokemons/${pokemon.id}`, {
                     method: 'DELETE',
                     headers: {
                       'Content-Type': 'application/json',
@@ -124,7 +124,7 @@ class App extends Component {
           })
         }
         else {
-          fetch(`http://localhost:3000/pokemons/${pokemon.id}`, {
+          fetch(`http://pbf-backend.herokuapp.com/pokemons/${pokemon.id}`, {
             method: 'DELETE',
             headers: {
               'Content-Type': 'application/json',
@@ -141,7 +141,7 @@ class App extends Component {
   login = (e) => {
     e.preventDefault()
 
-    fetch("http://localhost:3000/login", {
+    fetch("http://pbf-backend.herokuapp.com/login", {
       method: "POST",
       headers: {
         "Accept": "application/json",
@@ -171,7 +171,7 @@ class App extends Component {
 
 
     if (e.target.password.value === e.target.passwordConfirm.value) {
-      fetch("http://localhost:3000/users", {
+      fetch("http://pbf-backend.herokuapp.com/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
