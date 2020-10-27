@@ -15,7 +15,7 @@ export default class NewPokemon extends Component {
 
     componentDidMount() {
         if (this.state.typeOptions.length === 0) {
-            fetch('http://pbf-backend.herokuapp.com/types')
+            fetch('https://pbf-backend.herokuapp.com/types')
                 .then(response => response.json())
                 .then(data => {
                     this.state.typeOptions.push({key: "t0", text: "All", value: ""})

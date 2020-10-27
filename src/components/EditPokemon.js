@@ -57,7 +57,7 @@ export default class EditPokemon extends Component {
             natureOptions.push({ key: "n" + nature.id, text: `${nature.name} (+ ${nature.stat_raised.split('_').join(' ')}, - ${nature.stat_lowered.split('_').join(' ')})`, value: nature })
         })
 
-        fetch(`http://pbf-backend.herokuapp.com/species/${poke.species_id}`)
+        fetch(`https://pbf-backend.herokuapp.com/species/${poke.species_id}`)
             .then(response => response.json())
             .then(data => {
                 data.moves.forEach(move => {
@@ -190,7 +190,7 @@ export default class EditPokemon extends Component {
     }
 
     savePokemon = (e) => {
-        fetch(`http://pbf-backend.herokuapp.com/pokemons/${poke.id}`, {
+        fetch(`https://pbf-backend.herokuapp.com/pokemons/${poke.id}`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
@@ -202,7 +202,7 @@ export default class EditPokemon extends Component {
             }),
         })
         this.state.changedMoves.forEach(move => {
-            fetch(`http://pbf-backend.herokuapp.com/pokemon_moves`, {
+            fetch(`https://pbf-backend.herokuapp.com/pokemon_moves`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -215,7 +215,7 @@ export default class EditPokemon extends Component {
         })
         if (this.state.removedMoves.length !== 0) {
             this.state.removedMoves.forEach(move => {
-                fetch(`http://pbf-backend.herokuapp.com/pokemon_moves`)
+                fetch(`https://pbf-backend.herokuapp.com/pokemon_moves`)
                     .then(response => response.json())
                     .then(data => {
                         data.forEach(pokemonMove => {
@@ -224,7 +224,7 @@ export default class EditPokemon extends Component {
                                     removedIds: [...this.state.removedIds, pokemonMove.id]
                                 }, () => {
                                     this.state.removedIds.forEach(id => {
-                                        fetch(`http://pbf-backend.herokuapp.com/pokemon_moves/${id}`, {
+                                        fetch(`https://pbf-backend.herokuapp.com/pokemon_moves/${id}`, {
                                             method: 'DELETE',
                                             headers: {
                                                 'Content-Type': 'application/json',
