@@ -3,7 +3,6 @@ import { Segment, Form, Grid, List } from 'semantic-ui-react';
 
 export default class PokeMove extends Component {
     render() {
-        console.log(this.props.pokemon.moves[this.props.num - 1])
         return (
             <Segment>
                 <Grid celled='internally' columns='equal'>

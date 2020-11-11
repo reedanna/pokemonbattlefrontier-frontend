@@ -69,6 +69,7 @@ class App extends Component {
     this.setState({
       editingPokemon: false
     })
+    this.getMyPokemon(this.state.activeUser)
   }
 
   addPokemon = (species) => {
@@ -99,7 +100,7 @@ class App extends Component {
     fetch('https://pbf-backend.herokuapp.com/pokemon_moves')
       .then(response => response.json())
       .then(data => {
-        if (data.length !== 0) {
+        if (data.some(pokemove => pokemove.pokemon_id === pokemon.id)) {
           data.forEach(pokemonMove => {
             if (pokemonMove.pokemon_id === pokemon.id) {
               fetch(`https://pbf-backend.herokuapp.com/pokemon_moves/${pokemonMove.id}`, {
