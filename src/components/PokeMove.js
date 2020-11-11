@@ -3,6 +3,7 @@ import { Segment, Form, Grid, List } from 'semantic-ui-react';
 
 export default class PokeMove extends Component {
     render() {
+        console.log(this.props.pokemon.moves[this.props.num - 1])
         return (
             <Segment>
                 <Grid celled='internally' columns='equal'>
@@ -46,8 +47,13 @@ export default class PokeMove extends Component {
                                     <List.Item>{this.props.pokemon.moves[this.props.num - 1].type.name}</List.Item>
                                     <List.Item>{this.props.pokemon.moves[this.props.num - 1].category}</List.Item>
                                     {this.props.pokemon.moves[this.props.num - 1].bp ?
-                                        <List.Item>{this.props.pokemon.moves[this.props.num - 1].bp} BP</List.Item>
-                                        : <List.Item></List.Item>}
+                                        <List.Item>
+                                        {this.props.pokemon.types.some(type => type.name == this.props.pokemon.moves[this.props.num - 1].type.name) ?
+                                            <>{this.props.pokemon.moves[this.props.num - 1].bp * 1.5} BP <b>(STAB)</b></> : <>{this.props.pokemon.moves[this.props.num - 1].bp} BP</>
+                                        }
+                                        </List.Item>
+                                        : <List.Item></List.Item>
+                                    }
                                 </List>
                                 :
                                 <List>
