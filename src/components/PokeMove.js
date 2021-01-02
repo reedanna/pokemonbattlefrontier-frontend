@@ -47,7 +47,7 @@ export default class PokeMove extends Component {
                                     <List.Item>{this.props.pokemon.moves[this.props.num - 1].category}</List.Item>
                                     {this.props.pokemon.moves[this.props.num - 1].bp ?
                                         <List.Item>
-                                        {this.props.pokemon.types.some(type => type.name == this.props.pokemon.moves[this.props.num - 1].type.name) ?
+                                        {this.props.pokemon.types.some(type => type.name === this.props.pokemon.moves[this.props.num - 1].type.name) ?
                                             <>{this.props.pokemon.moves[this.props.num - 1].bp * 1.5} BP <b>(STAB)</b></> : <>{this.props.pokemon.moves[this.props.num - 1].bp} BP</>
                                         }
                                         </List.Item>
