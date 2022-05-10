@@ -75,7 +75,7 @@ Frontend:
 
 
 ## FUTURE DEVELOPMENT GOALS
-- Calculate STAB (same-type attack bonus) on moves
+- ~~Calculate STAB (same-type attack bonus) on moves~~ Implemented!
 - Implement held items
 - Add alternate Pokemon forms (e.g. Alolan forms) to species list
 - Color-code type names
